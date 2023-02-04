@@ -4,6 +4,7 @@ import router from './router'
 import pinia from './stores' // store 统一导出
 // 样式全局使用
 import 'vant/lib/index.css'
+// 下面自己的样式可以覆盖上面vant样式
 import './styles/main.scss'
 
 const app = createApp(App)
