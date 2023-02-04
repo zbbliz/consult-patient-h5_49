@@ -11,9 +11,11 @@ specifiers:
   eslint-plugin-vue: ^9.3.0
   npm-run-all: ^4.1.5
   pinia: ^2.0.28
+  pinia-plugin-persistedstate: ^3.0.2
   prettier: ^2.7.1
   sass: ^1.58.0
   typescript: ~4.7.4
+  vant: ^4.0.10
   vite: ^4.0.0
   vue: ^3.2.45
   vue-router: ^4.1.6
@@ -21,6 +23,8 @@ specifiers:
 
 dependencies:
   pinia: 2.0.30_5yi2kxxaqg74pgvs6b75qdtvru
+  pinia-plugin-persistedstate: 3.0.2_pinia@2.0.30
+  vant: 4.0.10_vue@3.2.47
   vue: 3.2.47
   vue-router: 4.1.6_vue@3.2.47
 
@@ -466,6 +470,14 @@ packages:
       '@typescript-eslint/types': 5.50.0
       eslint-visitor-keys: 3.3.0
     dev: true
+
+  /@vant/popperjs/1.3.0:
+    resolution: {integrity: sha512-hB+czUG+aHtjhaEmCJDuXOep0YTZjdlRR+4MSmIFnkCQIxJaXLQdSsR90XWvAI2yvKUI7TCGqR8pQg2RtvkMHw==}
+    dev: false
+
+  /@vant/use/1.4.4:
+    resolution: {integrity: sha512-VFAU7oO3mAN/mA+xB0bRt36Ve2EVUyywmwH149qlRRrTBu1XwxoA8J7Kwpr1CoX9GTaoMsZle/+j3e2UtvsP3g==}
+    dev: false
 
   /@vitejs/plugin-vue/4.0.0_vite@4.1.1+vue@3.2.47:
     resolution: {integrity: sha512-e0X4jErIxAB5oLtDqbHvHpJe/uWNkdpYV83AOG2xo2tEVSzCzewgJMtREZM30wXnM5ls90hxiOtAuVU6H5JgbA==}
@@ -1841,6 +1853,14 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
+  /pinia-plugin-persistedstate/3.0.2_pinia@2.0.30:
+    resolution: {integrity: sha512-84vPyUhPA/8Pr+1mT1ioNb2d8z4tvdgYRqMQf8xyauOVBKjo0ZcRBwPQBV7ZAJG43Kwar43nXG2jU+ZMvAFFRQ==}
+    peerDependencies:
+      pinia: ^2.0.0
+    dependencies:
+      pinia: 2.0.30_5yi2kxxaqg74pgvs6b75qdtvru
+    dev: false
+
   /pinia/2.0.30_5yi2kxxaqg74pgvs6b75qdtvru:
     resolution: {integrity: sha512-q6DUmxWwe/mQgg+55QQjykpKC+aGeGdaJV3niminl19V08dE+LRTvSEuqi6/NLSGCKHI49KGL6tMNEOssFiMyA==}
     peerDependencies:
@@ -2218,6 +2238,16 @@ packages:
       spdx-correct: 3.1.1
       spdx-expression-parse: 3.0.1
     dev: true
+
+  /vant/4.0.10_vue@3.2.47:
+    resolution: {integrity: sha512-kpxzjgjJdZePqbcG0q+CM4v5lGFlPxQMb2irXsknUzHFe8XZgk3cQ/gukpn9flpMuNi6hPcwoQaAnyzAKlCYpg==}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@vant/popperjs': 1.3.0
+      '@vant/use': 1.4.4
+      vue: 3.2.47
+    dev: false
 
   /vite/4.1.1_f5vcjb3akvjdur4ffzogu2hewu:
     resolution: {integrity: sha512-LM9WWea8vsxhr782r9ntg+bhSFS06FJgCvvB0+8hf8UWtvaiDagKYWXndjfX6kGl74keHJUcpzrQliDXZlF5yg==}
