@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue'
 // https://vitejs.dev/config/
 export default defineConfig({
   // 默认是/基准地址
-  base: '/zbb',
+  base: '/',
   plugins: [vue()],
   resolve: {
     alias: {

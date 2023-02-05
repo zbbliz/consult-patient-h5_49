@@ -1,7 +1,7 @@
 // axios 二次封装
 import router from '@/router'
 import { useUserStore } from '@/stores'
-import axios from 'axios'
+import axios, { type Method } from 'axios'
 import { Toast } from 'vant'
 //  1. axios 的配置
 // 1.1 创建一个新的 axios 实例，配置基准地址
@@ -57,3 +57,34 @@ instance.interceptors.response.use(
     return Promise.reject(err)
   }
 )
+
+// 2. 请求工具函数
+// 2.1 参数：url method submitData
+// 2.2 返回: instance 调用接口的 promise 对象
+type Data<T> = {
+  code: string
+  message: string
+  data: T
+}
+const request = <T>(
+  url: string,
+  method: Method = 'GET', // 默认GET类型
+  submitData?: object
+) => {
+  // 泛型的第二个参数，可以自定义响应式数据类型
+  // 只传一个参数，用的是axios默认的格式，传入第二个参数返回数据就是第二个参数的格式
+  return instance.request<T, Data<T>>({
+    url,
+    method,
+    // toLowerCase 把传入的请求类型都改为小写，因为可能传入GET
+    // [] 里面可以写变量 还有表达式
+    [method.toLowerCase() === 'get' ? 'params' : 'data']: submitData // 区分 GET 请求和其他请求
+  })
+}
+
+// request<User>('/user', 'GET').then((res) => {
+//   // 现在返回的res就是后台返回的数据
+//   res.data.id
+// })
+
+export { baseURL, instance, request }
