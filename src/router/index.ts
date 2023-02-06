@@ -1,3 +1,4 @@
+import { useUserStore } from '@/stores'
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 回顾： Vue2 的路由
@@ -48,6 +49,18 @@ const router = createRouter({
       ]
     }
   ]
+})
+
+// 访问权限的控制
+// 路由守卫
+router.beforeEach((to) => {
+  // 如果 return true 或者什么也不写 就是放行
+  // 拦截到某个页面 return '路由地址'
+  const store = useUserStore()
+  const whiteList = ['/login']
+  // 需求：当没有token时 且 访问的不是白名单里面的路由地址 直接跳到登录页面
+  if (!store.user?.token && !whiteList.includes(to.path)) return '/login'
+  // 否则不做任何处理
 })
 
 export default router
