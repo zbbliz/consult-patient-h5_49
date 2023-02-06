@@ -3,7 +3,8 @@
 // import CpNavBar from '@/components/CpNavBar.vue'
 
 import { ref } from 'vue'
-
+import { mobileRules, passwordRules } from '@/utils/rules'
+import { Toast } from 'vant'
 const fn = () => {
   console.log('业务')
 }
@@ -14,6 +15,12 @@ const mobile = ref()
 const password = ref()
 // 控制是否显示密码
 const show = ref(false)
+
+const login = () => {
+  // 判断是否勾选了用户协议
+  if (!flag.value) return Toast('请勾选用户协议')
+  console.log('可以发送请求')
+}
 </script>
 
 <template>
@@ -28,13 +35,15 @@ const show = ref(false)
   </div>
 
   <!-- 表单 -->
-  <van-form autocomplete="off">
+  <van-form autocomplete="off" @submit="login">
     <van-field
+      :rules="mobileRules"
       v-model="mobile"
       placeholder="请输入手机号"
       type="tel"
     ></van-field>
     <van-field
+      :rules="passwordRules"
       v-model="password"
       placeholder="请输入密码"
       :type="show ? 'text' : 'password'"
@@ -55,7 +64,9 @@ const show = ref(false)
       </van-checkbox>
     </div>
     <div class="cp-cell">
-      <van-button block round type="primary">登 录</van-button>
+      <van-button block round type="primary" native-type="submit"
+        >登 录</van-button
+      >
     </div>
     <div class="cp-cell">
       <a href="javascript:;">忘记密码？</a>
