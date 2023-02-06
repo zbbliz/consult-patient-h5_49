@@ -19,6 +19,33 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login/index.vue')
+    },
+    {
+      path: '/',
+      component: () => import('@/views/Layout/index.vue'),
+      redirect: '/home',
+      children: [
+        {
+          path: '/home',
+          name: 'home',
+          component: () => import('@/views/Home/index.vue')
+        },
+        {
+          path: '/article',
+          name: 'article',
+          component: () => import('@/views/Article/index.vue')
+        },
+        {
+          path: '/notify',
+          name: 'notify',
+          component: () => import('@/views/Notify/index.vue')
+        },
+        {
+          path: '/user',
+          name: 'user',
+          component: () => import('@/views/User/index.vue')
+        }
+      ]
     }
   ]
 })
