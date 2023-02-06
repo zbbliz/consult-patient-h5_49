@@ -7,7 +7,13 @@ import { ref } from 'vue'
 const fn = () => {
   console.log('业务')
 }
-const flag = ref(false)
+
+const flag = ref(false) // 同意勾选按钮
+// 表单数据
+const mobile = ref()
+const password = ref()
+// 控制是否显示密码
+const show = ref(false)
 </script>
 
 <template>
@@ -23,8 +29,23 @@ const flag = ref(false)
 
   <!-- 表单 -->
   <van-form autocomplete="off">
-    <van-field placeholder="请输入手机号" type="tel"></van-field>
-    <van-field placeholder="请输入密码" type="password"></van-field>
+    <van-field
+      v-model="mobile"
+      placeholder="请输入手机号"
+      type="tel"
+    ></van-field>
+    <van-field
+      v-model="password"
+      placeholder="请输入密码"
+      :type="show ? 'text' : 'password'"
+    >
+      <template #button>
+        <cp-icon
+          @click="show = !show"
+          :name="`login-eye-${show ? 'on' : 'off'}`"
+        ></cp-icon>
+      </template>
+    </van-field>
     <div class="cp-cell">
       <van-checkbox v-model="flag">
         <span>我已同意</span>
@@ -41,10 +62,6 @@ const flag = ref(false)
     </div>
   </van-form>
   <!-- / 表单 -->
-  <svg aria-hidden="true">
-    <!-- #icon-文件夹名称-图片名称 -->
-    <use href="#icon-user-add" />
-  </svg>
 
   <!-- 底部 -->
   <div class="login-other">
