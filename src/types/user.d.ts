@@ -42,3 +42,21 @@ export type UserInfo = OmitUser & {
     finishedNumber: number
   }
 }
+
+// 患者列表信息
+export type Patient = {
+  // 患者id
+  id: string
+  // 患者名字
+  name: string
+  // 患者身份证
+  idCard: string
+  // 默认患者
+  defaultFlag: 0 | 1 // 0不是默认 1是默认患者
+  // 性别
+  gender: 0 | 1 // 性别 1男 0女
+  // 性别文字
+  genderValue: string
+  // 年龄
+  age: number
+}
