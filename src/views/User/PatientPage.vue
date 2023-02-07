@@ -2,6 +2,7 @@
 import { getPatientList } from '@/services/user'
 import type { Patient } from '@/types/user'
 import { onMounted, ref } from 'vue'
+import ComA from '@/test/ComA.vue'
 
 const list = ref<Patient[]>()
 const loadList = async () => {
@@ -12,6 +13,9 @@ const loadList = async () => {
 onMounted(() => {
   loadList()
 })
+
+const count = ref(100)
+const car = ref('奔驰')
 </script>
 
 <template>
@@ -21,7 +25,11 @@ onMounted(() => {
       <div class="patient-item" v-for="(item, i) of list" :key="i">
         <div class="info">
           <span class="name">{{ item.name }}</span>
-          <span class="id">{{ item.idCard }}</span>
+          <span class="id">
+            {{
+              item.idCard.replace(/^(.{6}).+(.{4})$/, '\$1********\$2')
+            }}</span
+          >
           <span>{{ item.genderValue }}</span>
           <span>{{ item.age }}岁</span>
         </div>
@@ -34,6 +42,11 @@ onMounted(() => {
       </div>
       <div class="patient-tip">最多可添加 6 人</div>
     </div>
+
+    <!-- vue3的 v-model 语法糖 -->
+    <!-- <com-a :modelValue="count" @update:modelValue="count += $event"></com-a> -->
+    <!-- <com-a v-model="count" :car="car" @update:car="car = $event"></com-a> -->
+    <com-a v-model:count="count" v-model:car="car"></com-a>
   </div>
 </template>
 
