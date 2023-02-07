@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 const router = useRouter()
-defineProps<{
+const props = defineProps<{
   title?: string
   rightText?: string
+  back?: () => void
 }>()
 const onClickLeft = () => {
+  // 家庭档案-侧滑层显示隐藏
+  // 判断是否传入函数 返回调用 在传入函数里写逻辑代码
+  if (props.back) return props.back()
+
   // TODO 点击左侧返回按钮
   // 如果有当前网站的上一个历史记录，才可以执行back()
   // 没有记录跳转到首页

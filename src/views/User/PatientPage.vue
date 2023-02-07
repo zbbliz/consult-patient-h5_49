@@ -2,20 +2,28 @@
 import { getPatientList } from '@/services/user'
 import type { Patient } from '@/types/user'
 import { onMounted, ref } from 'vue'
-import ComA from '@/test/ComA.vue'
+// import ComA from '@/test/ComA.vue'
 
 const list = ref<Patient[]>()
 const loadList = async () => {
   const res = await getPatientList()
   list.value = res.data
-  console.log(list.value)
 }
 onMounted(() => {
   loadList()
 })
 
-const count = ref(100)
-const car = ref('奔驰')
+// const count = ref(100)
+// const car = ref('奔驰')
+
+// cp-radio-btn 组件
+const options = [
+  { label: '男', value: 1 },
+  { label: '女', value: 0 }
+]
+const gender = ref(1)
+// 侧边栏弹出
+const show = ref(false)
 </script>
 
 <template>
@@ -36,23 +44,42 @@ const car = ref('奔驰')
         <div class="icon"><cp-icon name="user-edit" /></div>
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
-      <div class="patient-add" v-if="list.length < 6">
+      <div class="patient-add" v-if="list.length < 6" @click="show = true">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
       <div class="patient-tip">最多可添加 6 人</div>
     </div>
-
     <!-- vue3的 v-model 语法糖 -->
     <!-- <com-a :modelValue="count" @update:modelValue="count += $event"></com-a> -->
     <!-- <com-a v-model="count" :car="car" @update:car="car = $event"></com-a> -->
-    <com-a v-model:count="count" v-model:car="car"></com-a>
+    <!-- <com-a v-model:count="count" v-model:car="car"></com-a> -->
+
+    <!-- cp-radio-btn 组件渲染 -->
+    <!-- 家庭档案-侧滑层显示隐藏 -->
+    <van-popup v-model:show="show" position="right">
+      <!-- 父传子点击回退键的时候关闭弹层 -->
+      <cp-nav-bar
+        :back="() => (show = false)"
+        title="添加患者"
+        right-text="保存"
+      ></cp-nav-bar>
+      <cp-radio-btn :options="options" v-model:gender="gender"></cp-radio-btn>
+    </van-popup>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .patient-page {
   padding: 46px 0 80px;
+  :deep() {
+    .van-popup {
+      width: 100%;
+      height: 100%;
+      padding-top: 46px;
+      box-sizing: border-box;
+    }
+  }
 }
 .patient-list {
   padding: 15px;
