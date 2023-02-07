@@ -19,7 +19,8 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/Login/index.vue')
+      component: () => import('@/views/Login/index.vue'),
+      meta: { title: '登录' }
     },
     {
       path: '/',
@@ -29,22 +30,26 @@ const router = createRouter({
         {
           path: '/home',
           name: 'home',
-          component: () => import('@/views/Home/index.vue')
+          component: () => import('@/views/Home/index.vue'),
+          meta: { title: '首页' }
         },
         {
           path: '/article',
           name: 'article',
-          component: () => import('@/views/Article/index.vue')
+          component: () => import('@/views/Article/index.vue'),
+          meta: { title: '健康百科' }
         },
         {
           path: '/notify',
           name: 'notify',
-          component: () => import('@/views/Notify/index.vue')
+          component: () => import('@/views/Notify/index.vue'),
+          meta: { title: '消息通知' }
         },
         {
           path: '/user',
           name: 'user',
-          component: () => import('@/views/User/index.vue')
+          component: () => import('@/views/User/index.vue'),
+          meta: { title: '个人中心' }
         }
       ]
     }
@@ -54,6 +59,8 @@ const router = createRouter({
 // 访问权限的控制
 // 路由守卫
 router.beforeEach((to) => {
+  // 处理网页标题
+  document.title = `优医问诊-${to.meta.title || ''}`
   // 如果 return true 或者什么也不写 就是放行
   // 拦截到某个页面 return '路由地址'
   const store = useUserStore()
