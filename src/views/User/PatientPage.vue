@@ -50,10 +50,10 @@ const show = ref(false)
       </div>
       <div class="patient-tip">最多可添加 6 人</div>
     </div>
-    <!-- vue3的 v-model 语法糖 -->
-    <!-- <com-a :modelValue="count" @update:modelValue="count += $event"></com-a> -->
-    <!-- <com-a v-model="count" :car="car" @update:car="car = $event"></com-a> -->
-    <!-- <com-a v-model:count="count" v-model:car="car"></com-a> -->
+    <!-- vue3的 v-model 语法糖
+    <com-a :modelValue="count" @update:modelValue="count += $event"></com-a>
+    <com-a v-model="count" :car="car" @update:car="car = $event"></com-a>
+    <com-a v-model:count="count" v-model:car="car"></com-a> -->
 
     <!-- cp-radio-btn 组件渲染 -->
     <!-- 家庭档案-侧滑层显示隐藏 -->
