@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { addPatient, getPatientList } from '@/services/user'
+import {
+  addPatient,
+  editPatient,
+  getPatientList,
+  delPatient
+} from '@/services/user'
 import type { Patient } from '@/types/user'
 import { computed, onMounted, ref } from 'vue'
 // import ComA from '@/test/ComA.vue'
 import Validator from 'id-validator' // 导入验证身份证号码的包
-import { Toast } from 'vant'
+import { Toast, Dialog } from 'vant'
 
-const list = ref<Patient[]>()
+// 或者列表
+const list = ref<Patient[]>([])
 const loadList = async () => {
   const res = await getPatientList()
   list.value = res.data
+  if (list.value.length === 1) list.value[0].defaultFlag = 1
 }
 onMounted(() => {
   loadList()
@@ -20,11 +27,18 @@ onMounted(() => {
 
 // 侧边栏弹出
 // cp-radio-btn 组件
-const fn = () => {
-  // 点击弹层
+const showPopup = (item?: Patient) => {
+  if (item) {
+    // 回写表单数据
+    const { id, idCard, name, gender, defaultFlag } = item
+    patient.value = { id, idCard, name, gender, defaultFlag }
+    console.log(item)
+  } else {
+    // 重置表单
+    patient.value = { ...initPatient }
+  }
+  // 显示弹层
   show.value = true
-  // 表单还原
-  patient.value = { ...initPatient }
 }
 const options = [
   { label: '男', value: 1 },
@@ -65,12 +79,30 @@ const submit = async () => {
   // 判断选的性别跟身份证的不一样
   if (info.sex !== patient.value.gender) return Toast('性别与身份证不符合')
   // 调用接口添加患者
-  await addPatient(patient.value)
+  // 判断有id是编辑患者
+  patient.value.id
+    ? await editPatient(patient.value)
+    : await addPatient(patient.value)
   show.value = false
-  Toast.success('添加患者成功')
+  Toast.success(patient.value.id ? '编辑成功' : '添加成功')
   // 调用接口刷新
   loadList()
   // console.log(info)
+}
+
+// 删除患者
+const removepatient = async () => {
+  if (patient.value.id) {
+    await Dialog.confirm({
+      title: '温馨提示',
+      message: `您确定要删除${patient.value.name}该患者的信息吗`
+    })
+    await delPatient(patient.value.id)
+    show.value = false
+    Toast.success('删除成功')
+    // 调用接口刷新
+    loadList()
+  }
 }
 </script>
 
@@ -89,10 +121,12 @@ const submit = async () => {
           <span>{{ item.genderValue }}</span>
           <span>{{ item.age }}岁</span>
         </div>
-        <div class="icon"><cp-icon name="user-edit" /></div>
+        <div class="icon">
+          <cp-icon name="user-edit" @click="showPopup(item)" />
+        </div>
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
-      <div class="patient-add" v-if="list.length < 6" @click="fn">
+      <div class="patient-add" v-if="list.length < 6" @click="showPopup()">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
@@ -109,7 +143,7 @@ const submit = async () => {
       <!-- 父传子点击回退键的时候关闭弹层 -->
       <cp-nav-bar
         :back="() => (show = false)"
-        title="添加患者"
+        :title="patient.id ? '编辑患者' : '添加患者'"
         right-text="保存"
         @click-right="submit"
       ></cp-nav-bar>
@@ -139,13 +173,27 @@ const submit = async () => {
           </template>
         </van-field>
       </van-form>
-
+      <!-- 编辑患者删除按钮 -->
+      <van-action-bar v-if="patient.id">
+        <van-action-bar-button @click="removepatient()"
+          >删除</van-action-bar-button
+        >
+      </van-action-bar>
       <!-- <cp-radio-btn :options="options" v-model:gender="gender"></cp-radio-btn> -->
     </van-popup>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// 底部操作栏
+.van-action-bar {
+  padding: 0 10px;
+  margin-bottom: 10px;
+  .van-button {
+    color: var(--cp-price);
+    background-color: var(--cp-bg);
+  }
+}
 .patient-page {
   padding: 46px 0 80px;
   :deep() {
