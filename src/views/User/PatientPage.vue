@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { getPatientList } from '@/services/user'
+import { addPatient, getPatientList } from '@/services/user'
 import type { Patient } from '@/types/user'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 // import ComA from '@/test/ComA.vue'
+import Validator from 'id-validator' // 导入验证身份证号码的包
+import { Toast } from 'vant'
 
 const list = ref<Patient[]>()
 const loadList = async () => {
@@ -16,14 +18,60 @@ onMounted(() => {
 // const count = ref(100)
 // const car = ref('奔驰')
 
+// 侧边栏弹出
 // cp-radio-btn 组件
+const fn = () => {
+  // 点击弹层
+  show.value = true
+  // 表单还原
+  patient.value = { ...initPatient }
+}
 const options = [
   { label: '男', value: 1 },
   { label: '女', value: 0 }
 ]
-const gender = ref(1)
-// 侧边栏弹出
+// const gender = ref(1)
 const show = ref(false)
+// 表单数据
+const initPatient: Patient = {
+  name: '',
+  idCard: '',
+  gender: 1,
+  defaultFlag: 0
+}
+const patient = ref<Patient>({ ...initPatient })
+// 默认就诊人：选中就是 1代表true 不选中是 0代表false，
+const defaultFlag = computed({
+  // 组件需要的是 布尔 类型，需要通过计算属性转换一下
+  // 取值给表单
+  get() {
+    return patient.value.defaultFlag === 1 ? true : false
+  },
+  // 存放表单
+  set(value) {
+    patient.value.defaultFlag = value ? 1 : 0
+  }
+})
+
+// 点击保存逻辑
+const submit = async () => {
+  // 姓名和身份证不能为空
+  if (!patient.value.name) return Toast('请输入姓名')
+  if (!patient.value.idCard) return Toast('请输入身份证')
+  // 校验身份证
+  const validator = new Validator()
+  if (!validator.isValid(patient.value.idCard)) return Toast('身份证格式不正确')
+  const info = validator.getInfo(patient.value.idCard)
+  // 判断选的性别跟身份证的不一样
+  if (info.sex !== patient.value.gender) return Toast('性别与身份证不符合')
+  // 调用接口添加患者
+  await addPatient(patient.value)
+  show.value = false
+  Toast.success('添加患者成功')
+  // 调用接口刷新
+  loadList()
+  // console.log(info)
+}
 </script>
 
 <template>
@@ -44,7 +92,7 @@ const show = ref(false)
         <div class="icon"><cp-icon name="user-edit" /></div>
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
-      <div class="patient-add" v-if="list.length < 6" @click="show = true">
+      <div class="patient-add" v-if="list.length < 6" @click="fn">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
@@ -63,8 +111,36 @@ const show = ref(false)
         :back="() => (show = false)"
         title="添加患者"
         right-text="保存"
+        @click-right="submit"
       ></cp-nav-bar>
-      <cp-radio-btn :options="options" v-model:gender="gender"></cp-radio-btn>
+      <van-form autocomplete="off" ref="form">
+        <van-field
+          label="真实姓名"
+          v-model="patient.name"
+          placeholder="请输入真实姓名"
+        />
+        <van-field
+          label="身份证号"
+          v-model="patient.idCard"
+          placeholder="请输入身份证号"
+        />
+        <van-field label="性别" class="pb4">
+          <!-- 单选按钮组件 -->
+          <template #input>
+            <cp-radio-btn
+              :options="options"
+              v-model:gender="patient.gender"
+            ></cp-radio-btn>
+          </template>
+        </van-field>
+        <van-field label="默认就诊人">
+          <template #input>
+            <van-checkbox :icon-size="18" v-model="defaultFlag" round />
+          </template>
+        </van-field>
+      </van-form>
+
+      <!-- <cp-radio-btn :options="options" v-model:gender="gender"></cp-radio-btn> -->
     </van-popup>
   </div>
 </template>

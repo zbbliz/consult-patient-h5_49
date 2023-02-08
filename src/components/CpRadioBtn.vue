@@ -9,7 +9,6 @@ defineProps<{
 // const emit = defineEmits<{
 //   (e: 'update:gender ', value: number | string): void
 // }>()
-
 const emit = defineEmits<{
   (e: 'update:gender', value: number | string): void
 }>()
