@@ -16,3 +16,9 @@ const codeRules: FieldRule[] = [
   { pattern: /^\d{6}$/, message: '验证码为6位数字' }
 ]
 export { mobileRules, passwordRules, codeRules }
+
+// 名字校验
+export const nameRules: FieldRule[] = [
+  { required: true, message: '请输入姓名' },
+  { pattern: /^(?:[\u4e00-\u9fa5·]{2,16})$/, message: '中文2-16个字符' }
+]
