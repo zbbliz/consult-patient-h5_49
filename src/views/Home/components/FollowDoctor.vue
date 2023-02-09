@@ -46,7 +46,7 @@ onMounted(() => loadData())
         :loop="false"
       >
         <van-swipe-item v-for="item of list" :key="item.id">
-          <doctor-card :item="item" />
+          <DoctorCard :item="item" />
         </van-swipe-item>
       </van-swipe>
     </div>

@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import type { Doctor } from '@/types/consult'
-
+import { useFollow } from '@/composable'
 defineProps<{ item: Doctor }>()
+
+// 点击关注操作逻辑
+const { loading, follow } = useFollow('doc')
 </script>
 <template>
   <!-- 单个医生推荐卡片 -->
@@ -10,7 +13,13 @@ defineProps<{ item: Doctor }>()
     <p class="name">{{ item.name }}</p>
     <p class="van-ellipsis">{{ item.hospitalName }} {{ item.depName }}</p>
     <p>{{ item.positionalTitles }}</p>
-    <van-button round size="small" type="primary">
+    <van-button
+      :loading="loading"
+      round
+      size="small"
+      type="primary"
+      @click="follow(item)"
+    >
       {{ item.likeFlag === 1 ? '已关注' : '+ 关注' }}
     </van-button>
   </div>
