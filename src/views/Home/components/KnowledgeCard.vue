@@ -30,7 +30,12 @@ defineProps<{ item: Knowledge }>()
         {{ item.content.replace(/<[^>]+>/g, '') }}
       </p>
       <div class="imgs" :class="{ large: item.coverUrl.length === 1 }">
-        <van-image v-for="(url, i) of item.coverUrl" :key="i" :src="url" />
+        <van-image
+          fit="cover"
+          v-for="(url, i) of item.coverUrl"
+          :key="i"
+          :src="url"
+        />
       </div>
       <p class="logs">
         <span>{{ item.collectionNumber }} 收藏</span>
