@@ -13,3 +13,4 @@ export default pinia
 
 // 统一导出user仓库
 export * from './user'
+export * from './consult'

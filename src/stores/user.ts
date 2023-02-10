@@ -18,6 +18,6 @@ export const useUserStore = defineStore(
     return { user, setUser, delUser }
   },
   {
-    persist: true
+    persist: true // 开启本地存储
   }
 )

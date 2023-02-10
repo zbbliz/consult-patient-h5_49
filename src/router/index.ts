@@ -1,6 +1,8 @@
 import { useUserStore } from '@/stores'
 import { createRouter, createWebHistory } from 'vue-router'
 
+import Nprogress from 'nprogress'
+import 'nprogress/nprogress.css'
 // 回顾： Vue2 的路由
 //  1. import VueRouter from 'vue-router
 //  2. const router = new VueRouter({ routes: [ 路由规则 ] })
@@ -57,6 +59,16 @@ const router = createRouter({
       path: '/user/patient',
       component: () => import('@/views/User/PatientPage.vue'),
       meta: { title: '家庭档案' }
+    },
+    {
+      path: '/consult/fast',
+      component: () => import('@/views/Consult/ConsultFast.vue'),
+      meta: { title: '极速问诊' }
+    },
+    {
+      path: '/consult/dep',
+      component: () => import('@/views/Consult/ConsultDep.vue'),
+      meta: { title: '选择科室' }
     }
   ]
 })
@@ -64,8 +76,8 @@ const router = createRouter({
 // 访问权限的控制
 // 路由守卫
 router.beforeEach((to) => {
-  // 处理网页标题
-  document.title = `优医问诊-${to.meta.title || ''}`
+  // 开启加载条
+  Nprogress.start()
   // 如果 return true 或者什么也不写 就是放行
   // 拦截到某个页面 return '路由地址'
   const store = useUserStore()
@@ -73,6 +85,13 @@ router.beforeEach((to) => {
   // 需求：当没有token时 且 访问的不是白名单里面的路由地址 直接跳到登录页面
   if (!store.user?.token && !whiteList.includes(to.path)) return '/login'
   // 否则不做任何处理
+})
+// 后置守卫
+router.afterEach((to) => {
+  // 处理网页标题
+  document.title = `优医问诊-${to.meta.title || ''}`
+  // 关闭加载条
+  Nprogress.done()
 })
 
 export default router
