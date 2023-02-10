@@ -163,7 +163,7 @@ const removepatient = async () => {
           <template #input>
             <cp-radio-btn
               :options="options"
-              v-model:gender="patient.gender"
+              v-model="patient.gender"
             ></cp-radio-btn>
           </template>
         </van-field>

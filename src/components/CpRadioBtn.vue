@@ -4,13 +4,13 @@ defineProps<{
     label: string
     value: string | number
   }[]
-  gender: string | number
+  modelValue: string | number | undefined
 }>()
 // const emit = defineEmits<{
 //   (e: 'update:gender ', value: number | string): void
 // }>()
 const emit = defineEmits<{
-  (e: 'update:gender', value: number | string): void
+  (e: 'update:modelValue', value: number | string): void
 }>()
 </script>
 
@@ -21,8 +21,8 @@ const emit = defineEmits<{
       href="javascript:;"
       v-for="item of options"
       :key="item.value"
-      :class="{ active: gender === item.value }"
-      @click="emit('update:gender', item.value)"
+      :class="{ active: modelValue === item.value }"
+      @click="emit('update:modelValue', item.value)"
       >{{ item.label }}</a
     >
   </div>

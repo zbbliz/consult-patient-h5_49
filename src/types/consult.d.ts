@@ -133,3 +133,9 @@ export type TopDep = SubDep & {
   // 二级科室数组
   child: SubDep[]
 }
+
+// 准备表单数据 图文问诊
+export type ConsultIllness = Pick<
+  PartialConsult,
+  'illnessDesc' | 'illnessTime' | 'consultFlag' | 'pictures'
+>
