@@ -10,6 +10,8 @@ import { computed, onMounted, ref } from 'vue'
 // import ComA from '@/test/ComA.vue'
 import Validator from 'id-validator' // 导入验证身份证号码的包
 import { Toast, Dialog } from 'vant'
+import { useRoute, useRouter } from 'vue-router'
+import { useConsultStore } from '@/stores'
 
 // 或者列表
 const list = ref<Patient[]>([])
@@ -17,6 +19,13 @@ const loadList = async () => {
   const res = await getPatientList()
   list.value = res.data
   if (list.value.length === 1) list.value[0].defaultFlag = 1
+
+  // 设置默认选中的ID，当你是选择患者的时候，且有患者信息的时候
+  if (isChange.value && list.value.length) {
+    const defPatient = list.value.find((item) => item.defaultFlag === 1)
+    if (defPatient) patientId.value = defPatient.id
+    else patientId.value = list.value[0].id
+  }
 }
 onMounted(() => {
   loadList()
@@ -104,13 +113,54 @@ const removepatient = async () => {
     loadList()
   }
 }
+
+// 1. 界面兼容选择患者
+const route = useRoute()
+const isChange = computed(() => route.query.isChange === '1')
+// 2. 点击选中效果
+const patientId = ref<string>()
+const selectedPatient = (item: Patient) => {
+  if (isChange.value) {
+    patientId.value = item.id
+  }
+}
+// 3.默认选中效果
+//   // 设置默认选中的ID，当你是选择患者的时候，且有患者信息的时候
+//   if (isChange.value && list.value.length) {
+//     const defPatient = list.value.find((item) => item.defaultFlag === 1)
+//     console.log(defPatient)
+//     if (defPatient) patientId.value = defPatient.id
+//     else patientId.value = list.value[0].id
+//   }
+
+// 记录患者ID跳转到待支付页面
+const store = useConsultStore()
+const router = useRouter()
+const next = () => {
+  // 判断有没有选择患者
+  if (!patientId.value) return Toast('请选择患者')
+  store.setPatient(patientId.value)
+  router.push('/consult/pay')
+}
 </script>
 
 <template>
   <div class="patient-page">
-    <cp-nav-bar title="家庭档案"></cp-nav-bar>
+    <cp-nav-bar :title="isChange ? '选择患者' : '家庭档案'"></cp-nav-bar>
+    <!-- 头部提示 -->
+    <div class="patient-change" v-if="isChange">
+      <h3>请选择患者信息</h3>
+      <p>以便医生给出更准确的治疗，信息仅医生可见</p>
+    </div>
+    <!-- 患者列表 -->
     <div class="patient-list" v-if="list">
-      <div class="patient-item" v-for="(item, i) of list" :key="i">
+      <div
+        class="patient-item"
+        v-for="(item, i) of list"
+        :key="i"
+        @click="selectedPatient(item)"
+        :class="{ selected: patientId === item.id }"
+      >
         <div class="info">
           <span class="name">{{ item.name }}</span>
           <span class="id">
@@ -132,6 +182,12 @@ const removepatient = async () => {
       </div>
       <div class="patient-tip">最多可添加 6 人</div>
     </div>
+
+    <!-- 底部按钮 -->
+    <div class="patient-next" v-if="isChange">
+      <van-button type="primary" @click="next" round block>下一步</van-button>
+    </div>
+
     <!-- vue3的 v-model 语法糖
     <com-a :modelValue="count" @update:modelValue="count += $event"></com-a>
     <com-a v-model="count" :car="car" @update:car="car = $event"></com-a>
@@ -282,5 +338,25 @@ const removepatient = async () => {
 }
 .pb4 {
   padding-bottom: 4px;
+}
+.patient-change {
+  padding: 15px;
+  > h3 {
+    font-weight: normal;
+    margin-bottom: 5px;
+  }
+  > p {
+    color: var(--cp-text3);
+  }
+}
+.patient-next {
+  padding: 15px;
+  background-color: #fff;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  box-sizing: border-box;
 }
 </style>

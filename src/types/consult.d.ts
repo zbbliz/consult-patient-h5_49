@@ -139,3 +139,23 @@ export type ConsultIllness = Pick<
   PartialConsult,
   'illnessDesc' | 'illnessTime' | 'consultFlag' | 'pictures'
 >
+
+// 问诊订单预支付传参
+export type ConsultOrderPreParams = Pick<
+  'PartialConsult',
+  'type' | 'illnessType'
+>
+
+// 问诊订单预支付信息
+export type ConsultOrderPreData = {
+  // 实付金额
+  actualPayment: number
+  // 使用的优惠券id-使用优惠券时
+  couponId: string
+  // 优惠券抵扣
+  couponDeduction: number
+  // 积分可抵扣
+  pointDeduction: number
+  // 应付款/价格-图文或者极速的费用，极速普通10元，三甲39元
+  payment: number
+}

@@ -2,7 +2,7 @@ import type { CodeType, Patient, User, UserInfo } from '@/types/user'
 import { request } from '@/utils/rquest'
 
 // 请求登录 手机号密码
-export const loginByPassword = (mobile: string, password: string) =>
+export const loginByPassword = (mobile: number, password: string) =>
   request<User>('login/password', 'POST', { mobile, password })
 
 // 获取手机验证码
@@ -29,3 +29,7 @@ export const editPatient = (patient: Patient) =>
 
 // 删除患者
 export const delPatient = (id: string) => request(`patient/del/${id}`, 'DELETE')
+
+// 查询患者详情
+export const getPatientDetail = (id: string) =>
+  request<Patient>(`patient/info/${id}`)
