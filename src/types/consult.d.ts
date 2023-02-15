@@ -159,3 +159,10 @@ export type ConsultOrderPreData = {
   // 应付款/价格-图文或者极速的费用，极速普通10元，三甲39元
   payment: number
 }
+
+// 支付订单参数
+export type ConsultPay = {
+  paymentMethod: string | number // 支付方式
+  orderId: string // 订单id
+  payCallback: string // 付款后的回调地址
+}

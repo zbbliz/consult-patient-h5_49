@@ -131,7 +131,7 @@ const login = async () => {
       </van-checkbox>
     </div>
     <div class="cp-cell">
-      <van-button block round type="primary" native-type="submit"
+      <van-button block round type="primary" native-type="submit" to="/user"
         >登 录</van-button
       >
     </div>

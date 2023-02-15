@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { getConsultOrderPre } from '@/services/consult'
+import {
+  createConsultOrder,
+  getConsultOrderPayUrl,
+  getConsultOrderPre
+} from '@/services/consult'
 import { getPatientDetail } from '@/services/user'
 import { useConsultStore } from '@/stores'
 import type { ConsultOrderPreData } from '@/types/consult'
 import type { Patient } from '@/types/user'
-import { Toast } from 'vant'
+import { Dialog, Toast } from 'vant'
 import { onMounted, ref } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 const store = useConsultStore()
 // 1. 获取问诊订单预支付信息
@@ -28,13 +33,88 @@ const loadPatient = async () => {
   patient.value = res.data
 }
 onMounted(() => {
+  // 5. 刷新页面的时候，判断问诊记录是否存在，不存在就alert提示，确认之后会到首页
+  if (
+    !store.consult.type ||
+    !store.consult.illnessType ||
+    !store.consult.depId ||
+    !store.consult.patientId
+  ) {
+    return Dialog.alert({
+      title: '温馨提示',
+      message:
+        '问诊信息不完整请重新填写，如有未支付的问诊订单可在问诊记录中继续支付'
+    }).then(() => router.push('/'))
+  }
   loadData()
   loadPatient()
 })
-const agree = ref(false)
+
+// 生成订单，展示支付方式抽屉
+const agree = ref(false) // 支付协议
+const show = ref(false) // 支付弹层
+const orderId = ref() // 订单id
+const loading = ref(false)
+const paymentMethod = ref<0 | 1>() // 选择支付类型
 // 提交支付
-const submit = () => {
+const submit = async () => {
   if (!agree.value) return Toast('请勾选我已同意支付协议')
+  loading.value = true
+  // 生成订单
+  const res = await createConsultOrder(store.consult)
+  orderId.value = res.data.id
+  // 清除问诊记录
+  store.clear()
+  loading.value = false
+  // 弹出支付层
+  show.value = true
+}
+
+// 进行支付
+// 1. 隐藏抽屉的关闭按钮 closeable
+// 2. 再关闭抽屉的时候，确认框提示，仍要关闭 问诊记录， 继续支付 关闭确认框
+// 3. 如果以及生成订单了回退需要拦截
+// 4. 生成支付地址然后跳转： 掉后台接口
+// 5. 刷新页面的时候，判断问诊记录是否存在，不存在就alert提示，确认之后会到首页
+const router = useRouter()
+const onClose = () => {
+  return Dialog.confirm({
+    title: '关闭支付',
+    message: '取消支付将无法获得医生回复，医生接诊名额有限，是否确认关闭？',
+    cancelButtonText: '仍要关闭',
+    confirmButtonText: '继续支付',
+    confirmButtonColor: 'var(--cp-primary)'
+  })
+    .then(() => {
+      // 说明不关闭支付弹层
+      return false
+    })
+    .catch(() => {
+      // 关闭支付弹层
+      router.push('user/consult')
+      return true
+    })
+}
+
+// 生成订单后不能回退
+onBeforeRouteLeave(() => {
+  // 离开路由时如果有订单id就不让跳
+  if (orderId.value) return false
+})
+
+// 点击支付
+const pay = async () => {
+  // 判断是否勾选支付类型
+  if (paymentMethod.value === undefined) return Toast('请选择支付方式')
+  Toast.loading('跳转支付中')
+  // 调用支付接口
+  const res = await getConsultOrderPayUrl({
+    paymentMethod: paymentMethod.value,
+    orderId: orderId.value,
+    payCallback: 'http://localhost/room'
+  })
+  // 跳转
+  location.href = res.data.payUrl
 }
 </script>
 
@@ -84,7 +164,39 @@ const submit = () => {
       :price="payInfo.actualPayment * 100"
       button-text="立即支付"
       text-align="left"
+      :loading="loading"
     />
+    <!-- 支付弹层 -->
+    <van-action-sheet
+      v-model:show="show"
+      title="选择支付方式"
+      :close-on-popstate="false"
+      :closeable="false"
+      :before-close="onClose"
+    >
+      <div class="pay-type">
+        <p class="amount">￥{{ payInfo.actualPayment.toFixed(2) }}</p>
+        <van-cell-group>
+          <van-cell title="微信支付" @click="paymentMethod = 0">
+            <template #icon><cp-icon name="consult-wechat" /></template>
+            <template #extra
+              ><van-checkbox :checked="paymentMethod === 0"
+            /></template>
+          </van-cell>
+          <van-cell title="支付宝支付" @click="paymentMethod = 1">
+            <template #icon><cp-icon name="consult-alipay" /></template>
+            <template #extra
+              ><van-checkbox :checked="paymentMethod === 1"
+            /></template>
+          </van-cell>
+        </van-cell-group>
+        <div class="btn">
+          <van-button type="primary" round block @click="pay"
+            >立即支付</van-button
+          >
+        </div>
+      </div>
+    </van-action-sheet>
   </div>
 </template>
 
@@ -149,6 +261,27 @@ const submit = () => {
   .van-submit-bar__button {
     font-weight: normal;
     width: 160px;
+  }
+}
+.pay-type {
+  .amount {
+    padding: 20px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .btn {
+    padding: 15px;
+  }
+  .van-cell {
+    align-items: center;
+    .cp-icon {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    .van-checkbox :deep(.van-checkbox__icon) {
+      font-size: 16px;
+    }
   }
 }
 </style>
