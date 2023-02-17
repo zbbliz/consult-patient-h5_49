@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IllnessTime } from '@/enums'
+// import { IllnessTime } from '@/enums'
 import type { ConsultIllness, Image } from '@/types/consult'
 import { computed, onMounted, ref } from 'vue'
 import CpRadioBtn from '@/components/CpRadioBtn.vue'
@@ -11,6 +11,7 @@ import { uploadImage } from '@/services/consult'
 import { Dialog, Toast } from 'vant'
 import { useConsultStore } from '@/stores'
 import { useRouter } from 'vue-router'
+import { timeOptions, flagOptions } from '@/services/constants'
 
 const store = useConsultStore()
 const router = useRouter()
@@ -24,17 +25,17 @@ const form = ref<ConsultIllness>({
 
 // 声明数据 cp-radio-btn 使用
 // 疾病持续时间
-const timeOptions = [
-  { label: '一周内', value: IllnessTime.Week },
-  { label: '一月内', value: IllnessTime.Month },
-  { label: '半年内', value: IllnessTime.HalfYear },
-  { label: '大于半年', value: IllnessTime.More }
-]
-// 是否就诊过
-const flagOptions = [
-  { label: '就诊过', value: 0 },
-  { label: '没就诊过', value: 1 }
-]
+// const timeOptions = [
+//   { label: '一周内', value: IllnessTime.Week },
+//   { label: '一月内', value: IllnessTime.Month },
+//   { label: '半年内', value: IllnessTime.HalfYear },
+//   { label: '大于半年', value: IllnessTime.More }
+// ]
+// // 是否就诊过
+// const flagOptions = [
+//   { label: '就诊过', value: 0 },
+//   { label: '没就诊过', value: 1 }
+// ]
 
 // 上传图片
 const fileList = ref<Image[]>([])
