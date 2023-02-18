@@ -1,4 +1,5 @@
 import type {
+  ConsultOrderItem,
   ConsultOrderPreData,
   ConsultOrderPreParams,
   ConsultPay,
@@ -45,3 +46,7 @@ export const createConsultOrder = (data: PartialConsult) =>
 // 支付订单
 export const getConsultOrderPayUrl = (data: ConsultPay) =>
   request<{ payUrl: string }>('patient/consult/pay', 'POST', data)
+
+// 获取订单详情
+export const getConsultOrderDetail = (orderId: string) =>
+  request<ConsultOrderItem>('/patient/consult/order/detail', 'GET', { orderId })

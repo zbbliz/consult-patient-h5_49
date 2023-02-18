@@ -4,6 +4,11 @@ import type { Message } from '@/types/room'
 import { timeOptions, flagOptions } from '@/services/constants'
 import { ImagePreview } from 'vant'
 import type { Image } from '@/types/consult'
+import { useUserStore } from '@/stores'
+import dayjs from 'dayjs'
+// 处理时间格式 HH 大写是24进制 hh 小写12进制
+const formatTime = (time: string) => dayjs(time).format('HH:mm')
+const store = useUserStore()
 
 defineProps<{ list: Message[] }>()
 // 处理时间文字
@@ -15,11 +20,17 @@ const getConsultFlagText = (flag?: 0 | 1) =>
 const previewImg = (imgs?: Image[]) => {
   if (imgs && imgs.length) ImagePreview(imgs?.map((item) => item.url))
 }
+const sendLoad = () => {
+  window.scrollTo(0, document.body.scrollHeight)
+}
 </script>
 
 <template>
   <div>
-    <template v-for="{ msgType, id, msg } of list" :key="id">
+    <template
+      v-for="{ msgType, id, msg, createTime, from, fromAvatar } of list"
+      :key="id"
+    >
       <!-- 病情描述卡片 -->
       <div class="msg msg-illness" v-if="msgType === MsgType.CardPat">
         <div class="patient van-hairline--bottom">
@@ -51,7 +62,7 @@ const previewImg = (imgs?: Image[]) => {
         </div>
       </div>
 
-      <!-- 白色通知 -->
+      <!-- 白色通用通知 -->
       <div class="msg msg-tip" v-if="msgType === 31">
         <div class="content">
           <span>{{ msg.content }}</span>
@@ -59,44 +70,50 @@ const previewImg = (imgs?: Image[]) => {
       </div>
 
       <!-- 发送文字 -->
-      <!-- <div class="msg msg-to">
-      <div class="content">
-        <div class="time">20:12</div>
-        <div class="pao">大夫你好？</div>
+      <div
+        class="msg msg-to"
+        v-if="msgType === MsgType.MsgText && store.user?.id === from"
+      >
+        <div class="content">
+          <div class="time">{{ formatTime(createTime) }}</div>
+          <div class="pao">{{ msg.content }}</div>
+        </div>
+        <van-image :src="store.user?.avatar" />
       </div>
-      <van-image
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
-    </div> -->
+      <!-- 接受文字 医生发送 -->
+      <div
+        class="msg msg-from"
+        v-if="msgType === MsgType.MsgText && from !== store.user?.id"
+      >
+        <van-image :src="fromAvatar" />
+        <div class="content">
+          <div class="time">{{ formatTime(createTime) }}</div>
+          <div class="pao">{{ msg.content }}</div>
+        </div>
+      </div>
 
       <!-- 发送图片 -->
-      <!-- <div class="msg msg-to">
-      <div class="content">
-        <div class="time">20:12</div>
-        <van-image
-          fit="contain"
-          src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-        />
+      <div
+        class="msg msg-to"
+        v-if="msgType === MsgType.MsgImage && from === store.user?.id"
+      >
+        <div class="content">
+          <div class="time">{{ formatTime(createTime) }}</div>
+          <van-image @load="sendLoad" fit="contain" :src="msg.picture?.url" />
+        </div>
+        <van-image :src="store.user?.avatar" />
       </div>
-      <van-image
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
-    </div> -->
-
-      <!-- 接受文字 -->
-      <!-- <div class="msg msg-from">
-      <van-image
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
-      <div class="content">
-        <div class="time">20:12</div>
-        <div class="pao">哪里不舒服</div> 
-        <van-image
-          fit="contain"
-          src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-        />
+      <!-- 接收图片 医生 -->
+      <div
+        class="msg msg-from"
+        v-if="msgType === MsgType.MsgImage && store.user?.id !== from"
+      >
+        <van-image :src="fromAvatar" />
+        <div class="content">
+          <div class="time">{{ formatTime(createTime) }}</div>
+          <van-image @load="sendLoad" fit="contain" :src="msg.picture?.url" />
+        </div>
       </div>
-    </div> -->
 
       <!-- 订单取消 -->
       <!-- <div class="msg msg-tip msg-tip-cancel">

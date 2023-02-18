@@ -14,7 +14,9 @@ export default defineConfig({
   // 默认是/基准地址
   base: '/',
   plugins: [
-    vue(),
+    vue({
+      reactivityTransform: true
+    }),
     // 自动导入的插件，解析器可以是 vant element and-vue
     Components({
       // 默认是 true 开启自动生成组件的类型声明文件，vant的组件已经有类型声明文件，只要导入了就会使用类型声明
