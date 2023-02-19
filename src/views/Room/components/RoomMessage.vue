@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { IllnessTime, MsgType } from '@/enums'
-import type { Message } from '@/types/room'
+import { IllnessTime, MsgType, PrescriptionStatus } from '@/enums'
+import type { Message, Prescription } from '@/types/room'
 import { timeOptions, flagOptions } from '@/services/constants'
-import { ImagePreview } from 'vant'
+import { ImagePreview, Toast } from 'vant'
 import type { Image } from '@/types/consult'
 import { useUserStore } from '@/stores'
 import dayjs from 'dayjs'
 import { getPrescriptionPic } from '@/services/consult'
+import { useRouter } from 'vue-router'
+import EvaluateCard from '../components/EvaluateCard.vue'
 // 处理时间格式 HH 大写是24进制 hh 小写12进制
 const formatTime = (time: string) => dayjs(time).format('HH:mm')
 const store = useUserStore()
@@ -32,6 +34,22 @@ const showPrescription = async (id?: string) => {
     const res = await getPrescriptionPic(id)
     // 预览处方图片
     ImagePreview([res.data.url])
+  }
+}
+
+// 购买药品
+const router = useRouter()
+const buy = (pre?: Prescription) => {
+  if (pre) {
+    // 处方状态已失效
+    if (pre.status === PrescriptionStatus.Invalid) return Toast('处方已失效')
+    // 处方未付款 且 没有药品订单ID
+    if (pre.status === PrescriptionStatus.NotPayment && !pre.orderId) {
+      // 携带处方的id跳转
+      return router.push(`/order/pay?id=${pre.id}`)
+    }
+    // 未支付，有订单 或者 已支付 去药品订单详情
+    router.push(`/order/${pre.orderId}`)
   }
 }
 </script>
@@ -176,6 +194,25 @@ const showPrescription = async (id?: string) => {
           <div class="foot">
             <span @click="buy(msg.prescription)">购买药品</span>
           </div>
+        </div>
+      </div>
+
+      <!-- 评价组件 -->
+      <div
+        class="msg msg-comment"
+        v-if="msgType === MsgType.CardEvaForm || msgType === MsgType.CardEva"
+      >
+        <!-- 把评价信息传入组件 -->
+        <evaluate-card :evaluateDoc="msg.evaluateDoc" />
+      </div>
+
+      <!-- 问诊结束 -->
+      <div
+        class="msg msg-tip msg-tip-cancel"
+        v-if="msgType === MsgType.NotifyCancel"
+      >
+        <div class="content">
+          <span>{{ msg.content }}</span>
         </div>
       </div>
 

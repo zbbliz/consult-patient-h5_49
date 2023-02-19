@@ -2,7 +2,7 @@
 import RoomStatus from '@/views/Room/components/RoomStatus.vue'
 import RoomAction from '@/views/Room/components/RoomAction.vue'
 import RoomMessage from '@/views/Room/components/RoomMessage.vue'
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, provide, ref } from 'vue'
 
 import { baseURL } from '@/utils/rquest'
 import { useUserStore } from '@/stores'
@@ -163,6 +163,26 @@ const onRefresh = () => {
   // 获取聊天记录
   socket.emit('getChatMsgList', 20, time.value, consult.value?.id)
 }
+
+// 评价
+// 1. 把 未评价 和 已评价的 卡片封装在一个组件
+// 2. 渲染组件的时候， 把消息中的评价信息，传入组件
+// 3.根据是否有 评价内容， 展示对应的卡片
+// 3.1 有数据，展示
+// 3.2 无数据，绑定表单数据，收集表单数据，提交评价
+// 3.3 评价成功，修改评价消息状态和数据， 切换卡片展示
+const completeEva = (score: number) => {
+  const item = list.value.find((item) => item.msgType === MsgType.CardEvaForm)
+  if (item) {
+    // 修改孙组件提交的 评分
+    item.msg.evaluateDoc = { score }
+    // 将信息修改成 已评价
+    item.msgType = MsgType.CardEva
+  }
+}
+provide('completeEva', completeEva)
+// 跨关系传值 爷provide 传 孙inject
+provide('consult', consult)
 </script>
 
 <template>
