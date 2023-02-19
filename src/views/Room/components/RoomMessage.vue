@@ -6,6 +6,7 @@ import { ImagePreview } from 'vant'
 import type { Image } from '@/types/consult'
 import { useUserStore } from '@/stores'
 import dayjs from 'dayjs'
+import { getPrescriptionPic } from '@/services/consult'
 // 处理时间格式 HH 大写是24进制 hh 小写12进制
 const formatTime = (time: string) => dayjs(time).format('HH:mm')
 const store = useUserStore()
@@ -20,15 +21,33 @@ const getConsultFlagText = (flag?: 0 | 1) =>
 const previewImg = (imgs?: Image[]) => {
   if (imgs && imgs.length) ImagePreview(imgs?.map((item) => item.url))
 }
-const sendLoad = () => {
+const sendLoad = (notScroll?: boolean) => {
+  if (notScroll) return
   window.scrollTo(0, document.body.scrollHeight)
+}
+
+// 点击预览处方
+const showPrescription = async (id?: string) => {
+  if (id) {
+    const res = await getPrescriptionPic(id)
+    // 预览处方图片
+    ImagePreview([res.data.url])
+  }
 }
 </script>
 
 <template>
   <div>
     <template
-      v-for="{ msgType, id, msg, createTime, from, fromAvatar } of list"
+      v-for="{
+        msgType,
+        id,
+        msg,
+        createTime,
+        from,
+        fromAvatar,
+        notScroll
+      } of list"
       :key="id"
     >
       <!-- 病情描述卡片 -->
@@ -99,7 +118,11 @@ const sendLoad = () => {
       >
         <div class="content">
           <div class="time">{{ formatTime(createTime) }}</div>
-          <van-image @load="sendLoad" fit="contain" :src="msg.picture?.url" />
+          <van-image
+            @load="sendLoad(notScroll)"
+            fit="contain"
+            :src="msg.picture?.url"
+          />
         </div>
         <van-image :src="store.user?.avatar" />
       </div>
@@ -111,7 +134,48 @@ const sendLoad = () => {
         <van-image :src="fromAvatar" />
         <div class="content">
           <div class="time">{{ formatTime(createTime) }}</div>
-          <van-image @load="sendLoad" fit="contain" :src="msg.picture?.url" />
+          <van-image
+            @load="sendLoad(notScroll)"
+            fit="contain"
+            :src="msg.picture?.url"
+          />
+        </div>
+      </div>
+
+      <!-- 处方 -->
+      <div class="msg msg-recipe" v-if="msgType === MsgType.CardPre">
+        <div class="content" v-if="msg.prescription">
+          <div class="head van-hairline--bottom">
+            <div class="head-tit">
+              <h3>电子处方</h3>
+              <p @click="showPrescription(msg.prescription?.id)">
+                原始处方 <van-icon name="arrow"></van-icon>
+              </p>
+            </div>
+            <p>
+              {{ msg.prescription.name }}
+              {{ msg.prescription.genderValue }}
+              {{ msg.prescription.age }}岁
+              {{ msg.prescription.diagnosis }}
+            </p>
+            <p>开方时间：{{ msg.prescription.createTime }}</p>
+          </div>
+          <div class="body">
+            <div
+              class="body-item"
+              v-for="med in msg.prescription.medicines"
+              :key="med.id"
+            >
+              <div class="durg">
+                <p>{{ med.name }} {{ med.specs }}</p>
+                <p>{{ med.usageDosag }}</p>
+              </div>
+              <div class="num">x{{ med.quantity }}</div>
+            </div>
+          </div>
+          <div class="foot">
+            <span @click="buy(msg.prescription)">购买药品</span>
+          </div>
         </div>
       </div>
 

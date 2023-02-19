@@ -91,6 +91,9 @@ export type Message = {
     // 评价信息
     evaluateDoc?: EvaluateDoc
   }
+
+  // 是否滚动
+  notScroll?: boolean
 }
 
 // 消息分组列表
